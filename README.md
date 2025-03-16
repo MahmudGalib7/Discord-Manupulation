@@ -65,47 +65,60 @@ Discord Manipulation is a tool that allows you to enable hidden Developer Settin
 ### JavaScript Code to Make Discord Manipulated By A Activity That You Are Not Doing:
 
 ```javascript
+delete window.$;
 let wpRequire;
 window.webpackChunkdiscord_app.push([[ Math.random() ], {}, (req) => { wpRequire = req; }]);
 
-let ApplicationStreamingStore = Object.values(wpRequire.c).find(x => x?.exports?.Z?.getStreamerActiveStreamMetadata).exports.Z;
+let ApplicationStreamingStore = Object.values(wpRequire.c).find(x => x?.exports?.Z?.__proto__?.getStreamerActiveStreamMetadata).exports.Z;
 let RunningGameStore = Object.values(wpRequire.c).find(x => x?.exports?.ZP?.getRunningGames).exports.ZP;
-let QuestsStore = Object.values(wpRequire.c).find(x => x?.exports?.Z?.getQuest).exports.Z;
-let ExperimentStore = Object.values(wpRequire.c).find(x => x?.exports?.Z?.getGuildExperiments).exports.Z;
-let FluxDispatcher = Object.values(wpRequire.c).find(x => x?.exports?.Z?.flushWaitQueue).exports.Z;
+let QuestsStore = Object.values(wpRequire.c).find(x => x?.exports?.Z?.__proto__?.getQuest).exports.Z;
+let ChannelStore = Object.values(wpRequire.c).find(x => x?.exports?.Z?.__proto__?.getAllThreadsForParent).exports.Z;
+let GuildChannelStore = Object.values(wpRequire.c).find(x => x?.exports?.ZP?.getSFWDefaultChannel).exports.ZP;
+let FluxDispatcher = Object.values(wpRequire.c).find(x => x?.exports?.Z?.__proto__?.flushWaitQueue).exports.Z;
 let api = Object.values(wpRequire.c).find(x => x?.exports?.tn?.get).exports.tn;
 
 let quest = [...QuestsStore.quests.values()].find(x => x.id !== "1248385850622869556" && x.userStatus?.enrolledAt && !x.userStatus?.completedAt && new Date(x.config.expiresAt).getTime() > Date.now())
-let isApp = navigator.userAgent.includes("Electron/")
-if(!isApp) {
-	console.log("This no longer works in browser. Use the desktop app!")
-} else if(!quest) {
+let isApp = typeof DiscordNative !== "undefined"
+if(!quest) {
 	console.log("You don't have any uncompleted quests!")
 } else {
 	const pid = Math.floor(Math.random() * 30000) + 1000
 	
-	let applicationId, applicationName, secondsNeeded, secondsDone, canPlay
-	if(quest.config.configVersion === 1) {
-		applicationId = quest.config.applicationId
-		applicationName = quest.config.applicationName
-		secondsNeeded = quest.config.streamDurationRequirementMinutes * 60
-		secondsDone = quest.userStatus?.streamProgressSeconds ?? 0
-		canPlay = quest.config.variants.includes(2)
-	} else if(quest.config.configVersion === 2) {
-		applicationId = quest.config.application.id
-		applicationName = quest.config.application.name
-		canPlay = ExperimentStore.getUserExperimentBucket("2024-04_quest_playtime_task") > 0 && quest.config.taskConfig.tasks["PLAY_ON_DESKTOP"]
-		const taskName = canPlay ? "PLAY_ON_DESKTOP" : "STREAM_ON_DESKTOP"
-		secondsNeeded = quest.config.taskConfig.tasks[taskName].target
-		secondsDone = quest.userStatus?.progress?.[taskName]?.value ?? 0
-	}
+	const applicationId = quest.config.application.id
+	const applicationName = quest.config.application.name
+	const taskName = ["WATCH_VIDEO", "PLAY_ON_DESKTOP", "STREAM_ON_DESKTOP", "PLAY_ACTIVITY"].find(x => quest.config.taskConfig.tasks[x] != null)
+	const secondsNeeded = quest.config.taskConfig.tasks[taskName].target
+	const secondsDone = quest.userStatus?.progress?.[taskName]?.value ?? 0
 
-	if(canPlay) {
+	if(taskName === "WATCH_VIDEO") {
+		const tolerance = 2, speed = 10
+		const diff = Math.floor((Date.now() - new Date(quest.userStatus.enrolledAt).getTime())/1000)
+		const startingPoint = Math.min(Math.max(Math.ceil(secondsDone), diff), secondsNeeded)
+		let fn = async () => {
+			for(let i=startingPoint;i<=secondsNeeded;i+=speed) {
+				try {
+					await api.post({url: `/quests/${quest.id}/video-progress`, body: {timestamp: Math.min(secondsNeeded, i + Math.random())}})
+				} catch(ex) {
+					console.log("Failed to send increment of", i, ex.message)
+				}
+				await new Promise(resolve => setTimeout(resolve, tolerance * 1000))
+			}
+			if((secondsNeeded-secondsDone)%speed !== 0) {
+				await api.post({url: `/quests/${quest.id}/video-progress`, body: {timestamp: secondsNeeded}})
+			}
+			console.log("Quest completed!")
+		}
+		fn()
+		console.log(`Spoofing video for ${applicationName}. Wait for ${Math.ceil((secondsNeeded - startingPoint)/speed*tolerance)} more seconds.`)
+	} else if(taskName === "PLAY_ON_DESKTOP") {
+		if(!isApp) {
+			console.log("This no longer works in browser for non-video quests. Use the desktop app to complete the", applicationName, "quest!")
+		}
+		
 		api.get({url: `/applications/public?application_ids=${applicationId}`}).then(res => {
 			const appData = res.body[0]
 			const exeName = appData.executables.find(x => x.os === "win32").name.replace(">","")
 			
-			const games = RunningGameStore.getRunningGames()
 			const fakeGame = {
 				cmdLine: `C:\\Program Files\\${appData.name}\\${exeName}`,
 				exeName,
@@ -119,8 +132,13 @@ if(!isApp) {
 				processName: appData.name,
 				start: Date.now(),
 			}
-			games.push(fakeGame)
-			FluxDispatcher.dispatch({type: "RUNNING_GAMES_CHANGE", removed: [], added: [fakeGame], games: games})
+			const realGames = RunningGameStore.getRunningGames()
+			const fakeGames = [fakeGame]
+			const realGetRunningGames = RunningGameStore.getRunningGames
+			const realGetGameForPID = RunningGameStore.getGameForPID
+			RunningGameStore.getRunningGames = () => fakeGames
+			RunningGameStore.getGameForPID = (pid) => fakeGames.find(x => x.pid === pid)
+			FluxDispatcher.dispatch({type: "RUNNING_GAMES_CHANGE", removed: realGames, added: [fakeGame], games: fakeGames})
 			
 			let fn = data => {
 				let progress = quest.config.configVersion === 1 ? data.userStatus.streamProgressSeconds : Math.floor(data.userStatus.progress.PLAY_ON_DESKTOP.value)
@@ -129,11 +147,9 @@ if(!isApp) {
 				if(progress >= secondsNeeded) {
 					console.log("Quest completed!")
 					
-					const idx = games.indexOf(fakeGame)
-					if(idx > -1) {
-						games.splice(idx, 1)
-						FluxDispatcher.dispatch({type: "RUNNING_GAMES_CHANGE", removed: [fakeGame], added: [], games: []})
-					}
+					RunningGameStore.getRunningGames = realGetRunningGames
+					RunningGameStore.getGameForPID = realGetGameForPID
+					FluxDispatcher.dispatch({type: "RUNNING_GAMES_CHANGE", removed: [fakeGame], added: [], games: []})
 					FluxDispatcher.unsubscribe("QUESTS_SEND_HEARTBEAT_SUCCESS", fn)
 				}
 			}
@@ -141,7 +157,11 @@ if(!isApp) {
 			
 			console.log(`Spoofed your game to ${applicationName}. Wait for ${Math.ceil((secondsNeeded - secondsDone) / 60)} more minutes.`)
 		})
-	} else {
+	} else if(taskName === "STREAM_ON_DESKTOP") {
+		if(!isApp) {
+			console.log("This no longer works in browser for non-video quests. Use the desktop app to complete the", applicationName, "quest!")
+		}
+		
 		let realFunc = ApplicationStreamingStore.getStreamerActiveStreamMetadata
 		ApplicationStreamingStore.getStreamerActiveStreamMetadata = () => ({
 			id: applicationId,
@@ -164,8 +184,32 @@ if(!isApp) {
 		
 		console.log(`Spoofed your stream to ${applicationName}. Stream any window in vc for ${Math.ceil((secondsNeeded - secondsDone) / 60)} more minutes.`)
 		console.log("Remember that you need at least 1 other person to be in the vc!")
+	} else if(taskName === "PLAY_ACTIVITY") {
+		const channelId = ChannelStore.getSortedPrivateChannels()[0]?.id ?? Object.values(GuildChannelStore.getAllGuilds()).find(x => x != null && x.VOCAL.length > 0).VOCAL[0].channel.id
+		const streamKey = `call:${channelId}:1`
+		
+		let fn = async () => {
+			console.log("Completing quest", applicationName, "-", quest.config.messages.questName)
+			
+			while(true) {
+				const res = await api.post({url: `/quests/${quest.id}/heartbeat`, body: {stream_key: streamKey, terminal: false}})
+				const progress = res.body.progress.PLAY_ACTIVITY.value
+				console.log(`Quest progress: ${progress}/${secondsNeeded}`)
+				
+				await new Promise(resolve => setTimeout(resolve, 20 * 1000))
+				
+				if(progress >= secondsNeeded) {
+					await api.post({url: `/quests/${quest.id}/heartbeat`, body: {stream_key: streamKey, terminal: true}})
+					break
+				}
+			}
+			
+			console.log("Quest completed!")
+		}
+		fn()
 	}
 }
+
 ```
 ## Manipulate Discord Activity:
 
