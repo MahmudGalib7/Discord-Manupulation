@@ -125,7 +125,7 @@ If following a specific tweak, paste the provided JavaScript into the console.
 
 ---
 
-### > [!IMPORTANT] 
+> [!IMPORTANT] 
 > Notes About Completing Discord Quests:
 >
 > [!NOTE]
