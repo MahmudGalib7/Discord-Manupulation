@@ -35,11 +35,11 @@ Discord Manipulation is a tool that allows you to enable hidden Developer Settin
 "DANGEROUS_ENABLE_DEVTOOLS_ONLY_ENABLE_IF_YOU_KNOW_WHAT_YOURE_DOING": true
 ```
 
-\[!NOTE]
-Make sure to:
+> [!NOTE]
+> Make sure to:
 
-* Add a comma before the line if it's not the last entry.
-* Save and close the file.
+> - Add a comma before the line if it's not the last entry.
+> - Save and close the file.
 
 4. Open the **Discord desktop app**.
 5. Open the Developer Console using `Ctrl + Shift + I`.
@@ -100,11 +100,11 @@ nano settings.json
 "DANGEROUS_ENABLE_DEVTOOLS_ONLY_ENABLE_IF_YOU_KNOW_WHAT_YOURE_DOING": true
 ```
 
-\[!NOTE]
-Make sure to:
+> [!NOTE]
+> Make sure to:
 
-* Add a comma before the line if it's not the last entry.
-* Save and close the file.
+> - Add a comma before the line if it's not the last entry.
+> - Save and close the file.
 
 #### 4. **Restart Discord**
 
@@ -290,7 +290,9 @@ if(!quest) {
 }
 ```
 
-> [!IMPORTANT] Notes About Completing Discord Quests:
+> [!IMPORTANT]
+> [!Note]
+> About Completing Discord Quests:
 > This does not work in browsers for non-video, non-activity quests! For stream/play quests, use the desktop app.
 
 > [!WARNING]
