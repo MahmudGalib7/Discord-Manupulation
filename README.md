@@ -23,44 +23,121 @@ Discord Manipulation is a tool that allows you to enable hidden Developer Settin
 
 ### Enable Developer Settings:
 
-#### For Windows:
+---
 
-1. Press `win + r` and type `%appdata%`.
-2. Go to the Discord folder and search for `settings.json`.
-3. Paste the following code into the `settings.json` file:
+### ✅ For Windows:
 
-    ```json
-    "DANGEROUS_ENABLE_DEVTOOLS_ONLY_ENABLE_IF_YOU_KNOW_WHAT_YOURE_DOING": true
-    ```
+1. Press `Win + R` and type `%appdata%`.
+2. Go to the **Discord** folder and open `settings.json`.
+3. Paste the following code into the file:
 
-4. Open the Discord web app or desktop app.
-5. Open the Developer Console (Ctrl + Shift + I on Windows/Linux, Cmd + Option + I on macOS).
-6. Run the provided JavaScript code (see below) in the console to unlock Developer Settings.
+```json
+"DANGEROUS_ENABLE_DEVTOOLS_ONLY_ENABLE_IF_YOU_KNOW_WHAT_YOURE_DOING": true
+```
 
-#### For Linux:
+\[!NOTE]
+Make sure to:
 
-1. Open a terminal.
-2. Navigate to the Discord configuration directory:
+* Add a comma before the line if it's not the last entry.
+* Save and close the file.
 
-    ```bash
-    cd ~/snap/discord/current/.config/discord/
-    ```
+4. Open the **Discord desktop app**.
+5. Open the Developer Console using `Ctrl + Shift + I`.
+6. Run the JavaScript code (if provided) in the console to unlock Developer Settings.
 
-3. Use your favorite text editor (`nvim`, `vim`, `nano`, etc.) to edit the `settings.json` file:
+---
 
-    ```bash
-    nvim settings.json
-    ```
+### ✅ For Linux (Universal for Arch, Flatpak, Snap)
 
-4. Add the following line to the `settings.json` file:
+#### 1. **Locate the Discord Configuration Directory**
 
-    ```json
-    "DANGEROUS_ENABLE_DEVTOOLS_ONLY_ENABLE_IF_YOU_KNOW_WHAT_YOURE_DOING": true
-    ```
+Depending on your installation method:
 
-5. Open the Discord web app or desktop app.
-6. Open the Developer Console (Ctrl + Shift + I on Windows/Linux, Cmd + Option + I on macOS).
-7. Run the provided JavaScript code (see below) in the console to unlock Developer Settings.
+<details>
+<summary><strong>🧩 Pacman (official Arch repo):</strong></summary>
+
+```bash
+cd ~/.config/discord/
+```
+
+</details>
+
+<details>
+<summary><strong>📦 Snap (less common on Arch):</strong></summary>
+
+```bash
+cd ~/snap/discord/current/.config/discord/
+```
+
+</details>
+
+<details>
+<summary><strong>🧊 Flatpak:</strong></summary>
+
+```bash
+cd ~/.var/app/com.discordapp.Discord/config/discord/
+```
+
+</details>
+
+#### 2. **Edit `settings.json` with your preferred editor**
+
+Example with `nvim`:
+
+```bash
+nvim settings.json
+```
+
+Or with `nano`:
+
+```bash
+nano settings.json
+```
+
+#### 3. **Add the following line inside the JSON object:**
+
+```json
+"DANGEROUS_ENABLE_DEVTOOLS_ONLY_ENABLE_IF_YOU_KNOW_WHAT_YOURE_DOING": true
+```
+
+\[!NOTE]
+Make sure to:
+
+* Add a comma before the line if it's not the last entry.
+* Save and close the file.
+
+#### 4. **Restart Discord**
+
+Ensure Discord is completely closed:
+
+```bash
+ps aux | grep discord
+```
+
+Then start it again normally.
+
+#### 5. **Open Developer Tools**
+
+* Press `Ctrl + Shift + I` (Linux/Windows) or `Cmd + Option + I` (macOS).
+* This opens the Developer Console.
+
+#### 6. **(Optional) Run JavaScript Code**
+
+If following a specific tweak, paste the provided JavaScript into the console.
+
+---
+
+### \[!IMPORTANT] Notes About Completing Discord Quests:
+
+\[!NOTE]
+
+* This **does not work in browsers** for non-video, non-activity quests!
+* For stream/play quests, **use the desktop app**.
+
+\[!WARNING]
+When doing **stream quests**, you need **at least one other account** in the voice channel.
+
+---
 
 ### JavaScript Code to Make Discord Manipulated By A Activity That You Are Not Doing:
 
@@ -212,6 +289,13 @@ if(!quest) {
 	}
 }
 ```
+
+[!IMPORTANT] Notes About Completing Discord Quests:
+- This does not work in browsers for non-video, non-activity quests! For stream/play quests, use the desktop app.
+
+[!WARNING]
+When doing stream quests, you need at least one other account in the voice channel.
+
 ## Manipulate Discord Activity:
 
 To fake your status (e.g., playing a game or coding), join a voice channel and run the provided JavaScript code in the console.
