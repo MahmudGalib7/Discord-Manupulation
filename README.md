@@ -127,7 +127,7 @@ If following a specific tweak, paste the provided JavaScript into the console.
 
 > [!IMPORTANT] 
 > Notes About Completing Discord Quests:
->
+
 > [!NOTE]
 > * This **does not work in browsers** for non-video, non-activity quests!
 > * For stream/play quests, **use the desktop app**.
