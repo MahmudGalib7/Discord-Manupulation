@@ -66,8 +66,8 @@ Discord Manipulation is a tool that allows you to enable hidden Developer Settin
 
 ```javascript
 delete window.$;
-let wpRequire;
-window.webpackChunkdiscord_app.push([[ Math.random() ], {}, (req) => { wpRequire = req; }]);
+let wpRequire = webpackChunkdiscord_app.push([[Symbol()], {}, r => r]);
+webpackChunkdiscord_app.pop();
 
 let ApplicationStreamingStore = Object.values(wpRequire.c).find(x => x?.exports?.Z?.__proto__?.getStreamerActiveStreamMetadata).exports.Z;
 let RunningGameStore = Object.values(wpRequire.c).find(x => x?.exports?.ZP?.getRunningGames).exports.ZP;
@@ -88,28 +88,30 @@ if(!quest) {
 	const applicationName = quest.config.application.name
 	const taskName = ["WATCH_VIDEO", "PLAY_ON_DESKTOP", "STREAM_ON_DESKTOP", "PLAY_ACTIVITY"].find(x => quest.config.taskConfig.tasks[x] != null)
 	const secondsNeeded = quest.config.taskConfig.tasks[taskName].target
-	const secondsDone = quest.userStatus?.progress?.[taskName]?.value ?? 0
+	let secondsDone = quest.userStatus?.progress?.[taskName]?.value ?? 0
 
 	if(taskName === "WATCH_VIDEO") {
-		const tolerance = 2, speed = 10
-		const diff = Math.floor((Date.now() - new Date(quest.userStatus.enrolledAt).getTime())/1000)
-		const startingPoint = Math.min(Math.max(Math.ceil(secondsDone), diff), secondsNeeded)
-		let fn = async () => {
-			for(let i=startingPoint;i<=secondsNeeded;i+=speed) {
-				try {
-					await api.post({url: `/quests/${quest.id}/video-progress`, body: {timestamp: Math.min(secondsNeeded, i + Math.random())}})
-				} catch(ex) {
-					console.log("Failed to send increment of", i, ex.message)
+		const maxFuture = 10, speed = 7, interval = 1
+		const enrolledAt = new Date(quest.userStatus.enrolledAt).getTime()
+		let fn = async () => {			
+			while(true) {
+				const maxAllowed = Math.floor((Date.now() - enrolledAt)/1000) + maxFuture
+				const diff = maxAllowed - secondsDone
+				const timestamp = secondsDone + speed
+				if(diff >= speed) {
+					await api.post({url: `/quests/${quest.id}/video-progress`, body: {timestamp: Math.min(secondsNeeded, timestamp + Math.random())}})
+					secondsDone = Math.min(secondsNeeded, timestamp)
 				}
-				await new Promise(resolve => setTimeout(resolve, tolerance * 1000))
-			}
-			if((secondsNeeded-secondsDone)%speed !== 0) {
-				await api.post({url: `/quests/${quest.id}/video-progress`, body: {timestamp: secondsNeeded}})
+				
+				if(timestamp >= secondsNeeded) {
+					break
+				}
+				await new Promise(resolve => setTimeout(resolve, interval * 1000))
 			}
 			console.log("Quest completed!")
 		}
 		fn()
-		console.log(`Spoofing video for ${applicationName}. Wait for ${Math.ceil((secondsNeeded - startingPoint)/speed*tolerance)} more seconds.`)
+		console.log(`Spoofing video for ${applicationName}.`)
 	} else if(taskName === "PLAY_ON_DESKTOP") {
 		if(!isApp) {
 			console.log("This no longer works in browser for non-video quests. Use the desktop app to complete the", applicationName, "quest!")
@@ -209,7 +211,6 @@ if(!quest) {
 		fn()
 	}
 }
-
 ```
 ## Manipulate Discord Activity:
 
