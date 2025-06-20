@@ -129,13 +129,13 @@ If following a specific tweak, paste the provided JavaScript into the console.
 
 ### \[!IMPORTANT] Notes About Completing Discord Quests:
 
-\[!NOTE]
+> [!NOTE]
 
-* This **does not work in browsers** for non-video, non-activity quests!
-* For stream/play quests, **use the desktop app**.
+> * This **does not work in browsers** for non-video, non-activity quests!
+> * For stream/play quests, **use the desktop app**.
 
-\[!WARNING]
-When doing **stream quests**, you need **at least one other account** in the voice channel.
+> [!WARNING]
+> When doing **stream quests**, you need **at least one other account** in the voice channel.
 
 ---
 
@@ -290,11 +290,11 @@ if(!quest) {
 }
 ```
 
-[!IMPORTANT] Notes About Completing Discord Quests:
-- This does not work in browsers for non-video, non-activity quests! For stream/play quests, use the desktop app.
+> [!IMPORTANT] Notes About Completing Discord Quests:
+> This does not work in browsers for non-video, non-activity quests! For stream/play quests, use the desktop app.
 
-[!WARNING]
-When doing stream quests, you need at least one other account in the voice channel.
+> [!WARNING]
+> When doing stream quests, you need at least one other account in the voice channel.
 
 ## Manipulate Discord Activity:
 
